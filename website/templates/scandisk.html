@@ -1,0 +1,130 @@
+{% extends "main.html" %}
+
+{% block head %}
+<style>
+    td {
+        border-style: groove;
+    }
+</style>
+{% endblock %}
+
+{% block container %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+            <div class="input-group" style="margin-top:20px;">
+                <form action="/scandisk" method="get">
+                    <p>
+                        扫描本地磁盘中目标文件，自动识别番号文件名，可直接搜索，或打开。
+                    </p>
+                    <p>
+                        建议选较为精准的目录。
+                    </p>
+                    <input type="text" class="form-control" name="path_target" placeholder="扫描路径,例:d:\download" value="{{path_target}}" />
+                    <select class="form-control" name="file_target">
+                        <option value="mp4">视频 (mp4|mkv|flv|avi|rm|rmvb)</option>
+                        <option value="jpg">图片 (jpg|png|gif|jpeg|bmp)</option>
+                        <option value="mp3">音乐 (mp3|wav|wmv|aac)</option>
+                        <option value="torrent">种子 (torrent)</option>
+                        <option value="zip">压缩包 (zip|rar|gz|7z)</option>
+                        <option value="doc">文档 ((xls|doc|ppt|pdf|txt)</option>
+                    </select>
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" type="submit">扫描文件</button>
+                    </span>
+                </form>
+            </div>
+
+        <table>
+            <tr>
+                <th style="width: 500px">路径</th>
+                <th style="width: 80px">打开</th>
+                {% if file_target == "mp4" %}
+                <th style="width: 600px">信息</th>
+                {% endif %}
+            </tr>
+            {% if file_target == "mp4" %}
+                {% for resource in file_res %}
+                    {% if resource.av_id and av_data_map[resource.av_id] %}
+                        <tr>
+                            <!-- 视频文件 命中avid 有页面 -->
+                            <td><span style="color: coral;">{{resource.file_path}}</span></td>
+                            <td><button class="btn btn-default btn-sm" onclick="explorerLocal(this.getAttribute('data-val'))" data-val="{{resource.file_path}}" title="play">播放</button></td>
+                            <td>
+                                <a href="/movie/{{ av_data_map[resource.av_id].link_id }}" target="_blank">{{resource.av_id}}</a>
+                                {% if resource.info.has_fetch_movie %}
+                                    <span style="color: green;">[影片已抓取]</span>
+                                {% else %}
+                                    <span style="color: red;">[影片未抓取]</span>
+                                {% endif %}
+                                {% if resource.info.has_res_extend %}
+                                    <span style="color: green;">[已存储路径]</span>
+                                {% else %}
+                                    <span style="color: red;">[未存储路径]</span>
+                                    <button class="btn btn-default btn-sm insert_movie_res" data-val="{{resource.file_path}}" data-key="{{resource.av_id}}" title="add resource">添加到资源</button>
+                                {% endif %}
+{#                                <a class="movie-box" href="/movie/{{ av_data_map[resource.av_id].link_id }}">#}
+{#                                    <div class="photo-frame">#}
+{#                                        <img src="{{small_image(av_data_map[resource.av_id].big_image) }}" title="title:{{ av_data_map[resource.av_id].title }}#}
+{#标签:{{ av_data_map[resource.av_id].genre }}#}
+{#女优:{{ av_data_map[resource.av_id].stars }}">#}
+{#                                    </div>#}
+{#                                    <div class="photo-info">#}
+{#                                        <span>#}
+{#                                            <date>{{ av_data_map[resource.av_id].av_id }}</date> /#}
+{#                                            <date>{{ av_data_map[resource.av_id].release_date }}</date>#}
+{#                                        </span>#}
+{#                                    </div>#}
+{#                                </a>#}
+                            </td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+                {% for resource in file_res %}
+                    {% if resource.av_id and not av_data_map[resource.av_id] %}
+                        <tr>
+                            <!-- 视频文件 命中avid 无页面 -->
+                            <td><span style="color: coral;">{{resource.file_path}}</span></td>
+                            <td><button class="btn btn-default btn-sm" onclick="explorerLocal(this.getAttribute('data-val'))" data-val="{{resource.file_path}}" title="play">播放</button></td>
+                            <td><a href="{{config.get('base.avmoo_site')}}/cn/search/{{resource.av_id}}" target="_blank">{{resource.av_id}}</a> <span style="color: red;">[影片未抓取]</span></td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+                {% for resource in file_res %}
+                    {% if not resource.av_id %}
+                        <tr>
+                            <!-- 视频文件 未命中avid -->
+                            <td>{{resource.file_path}}</td>
+                            <td><button class="btn btn-default btn-sm" onclick="explorerLocal(this.getAttribute('data-val'))" data-val="{{resource.file_path}}" title="play">播放</button></td>
+                            <td></td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+
+            {% else %}
+                {% for resource in file_res %}
+                    <tr>
+                        <!-- 其他文件 -->
+                        <td>{{resource.file_path}}</td>
+                        <td><button class="btn btn-default btn-sm explorer-local" data-val="{{resource.file_path}}" title="explorer">本地打开</button></td>
+                    </tr>
+                {% endfor %}
+            {% endif %}
+
+        </table>
+
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block tail %}
+<script>
+$('.insert_movie_res').click(function(){
+    insertExtend('movie_res', $(this).data('key'), $(this).data('val'));
+    $(this)[0].style.display = "none";
+});
+</script>
+{% endblock %}

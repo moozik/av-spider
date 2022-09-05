@@ -1,0 +1,189 @@
+{% extends "main.html" %}
+
+{% block container %}
+<div class="container">
+    <h3><span id="av_title">{{data.title}}</span><button class="btn btn-success btn-sm" onclick="translateTitle('{{data.av_id}}')">翻译</button></h3>
+    <div class="row movie">
+        <div class="col-md-9 screencap">
+            <a class="big_image" href="{{data.big_image | big_img}}" title="{{data.title}}">
+                <img src="{{data.big_image | big_img}}">
+            </a>
+        </div>
+        <div class="col-md-3 info">
+            <p>
+                <span class="header">识别码:</span>
+                <span style="color:#CC0000;">{{data.av_id}}</span>
+            </p>
+            <p>
+                <span class="header">番号:</span>
+                <a href="/group/{{data.av_group}}">{{data.av_group}}</a>
+            </p>
+            {% if data.release_date %}
+                <p>
+                    <span class="header" title="release date">发行时间:</span> {{data.release_date}}
+                </p>
+            {% endif %}
+            {% if data.len %}
+                <p>
+                    <span class="header" title="movie length">长度:</span> {{data.len}}分钟
+                </p>
+            {% endif %}
+            {% if data.director_url %}
+                <p>
+                    <span class="header" title="director">导演:</span>
+                    <a href="/director/{{data.director_url}}" title="{{ data.director }}">{{data.director | rename}}</a>
+                </p>
+            {% endif %}
+            {% if data.studio_url %}
+                <p class="header" title="studio">制作商: </p>
+                <p>
+                    <a href="/studio/{{data.studio_url}}" title="{{ data.studio }}">{{data.studio | rename}}</a>
+                </p>
+            {% endif %}
+            {% if data.label_url %}
+                <p class="header" title="label">发行商: </p>
+                <p>
+                    <a href="/label/{{data.label_url}}" title="{{ data.label }}">{{data.label | rename}}</a>
+                </p>
+            {% endif %}
+            {% if data.series_url %}
+                <p class="header" title="series">系列:</p>
+                <p>
+                    <a href="/series/{{data.series_url}}" title="{{ data.series }}">{{data.series | rename}}</a>
+                </p>
+            {% endif %}
+            {% if data.genre_data %}
+            <p class="header" title="genre">类别:</p>
+            <p>
+                 {% for item in data.genre_data %}
+                    <span class="genre">
+                        <a href="/genre/{{item.link_id}}" title="{{ item.name }}">{{item.name | rename}}</a>
+                    </span>
+                 {% endfor %}
+            </p>
+            {% endif %}
+            <p class="header" title="action">操作:</p>
+            <p>
+                {% if data.is_like %}
+                    <button class="btn btn-danger btn-sm" type="submit" onclick="deleteExtend('like', 'av_id', '{{data.av_id}}');location.reload()" title="add Favorites">取消收藏</button>
+                {% else %}
+                    <button class="btn btn-success btn-sm" type="submit" onclick="insertExtend('like', 'av_id', '{{data.av_id}}');location.reload()" title="add Favorites">收藏</button>
+                {% endif %}
+                <button class="btn btn-warning btn-sm" type="submit" onclick="crawlAccurate('movie', '{{data.link_id}}');setTimeout(function(){location.reload()}, 3000);" title="crawl again">更新影片</button>
+            </p>
+        </div>
+    </div>
+
+    <div id="dplayer" style="height: 700px;display:none;"></div>
+
+    {% if config.get('website.search_url') %}
+    <h4 title="search tools">搜索资源</h4>
+    <div>
+        {% for item in search_url(data.av_id) %}
+            <a class="btn btn btn-success btn-sm" href="{{item.url}}" target="_blank">{{item.name}}</a>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <h4 title="resource">影片资源</h4>
+    <div>
+        <form class="form-inline">
+            <input id="movie_resource" type="text" class="form-control" style="width: 600px;" placeholder="磁力链接 magnet | 本地路径 D:\down | 在线地址 http://" title="magnet | local movie path | url"/>
+            <button class="btn btn-success btn-sm insert-movie-local" type="submit" onclick="insertExtend('movie_res', '{{data.av_id}}', document.querySelector('#movie_resource').value);location.reload();" title="save extend data">保存</button>
+        </form>
+        <ul class="list-unstyled info">
+        {% for res in data.res_list %}
+            <li>
+                <a class="tag-style" href="{{res | url_rename}}" title="{{res}}" target="_blank">{{res | url_rename}}</a>
+                <button class="btn btn-danger btn-sm" onclick="deleteExtend('movie_res','{{data.av_id}}', this.getAttribute('data-val'));location.reload();" data-val="{{res}}" type="submit" title="delete">删除</button>
+                {% if res | can_play_url %}
+                <button class="btn btn-success btn-sm" onclick="dplayer(this.getAttribute('data-val'))" data-val="{{res | url_rename}}" type="submit" title="play">播放</button>
+                {% else %}
+                <button class="btn btn-success btn-sm" onclick="explorerLocal(this.getAttribute('data-val'))" data-val="{{res | url_rename}}" type="submit" title="explorer local">本地打开</button>
+                {% endif %}
+            </li>
+        {% endfor %}
+        </ul>
+    </div>
+
+    {% if data.actress_data %}
+    <h4 title="actresses">演员</h4>
+    <div id="avatar-waterfall">
+        {% for item in data.actress_data %}
+        <a class="avatar-box" href="/star/{{item.link_id}}">
+            <div class="photo-frame">
+                {% if item.headimg %}
+                <img src="{{config.get('website.cdn')}}/{{item.head_img}}" title="">
+                {% else %}
+                <img src="{{config.get('website.cdn')}}/mono/actjpgs/nowprinting.gif" title="">
+                {% endif %}
+            </div>
+            <span title="{{item.name}}">{{item.name | rename}}</span>
+        </a>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    
+    {% if data.stars_map %}
+    <h4 title="not yet fetch actresses">其他演员</h4>
+    <p class="info">
+    {% for item in data.stars_map %}
+        <span class="genre">
+            <a href="/star/{{item.link_id}}">{{item.name}}</a>
+        </span>
+    {% endfor %}
+    </p>
+    {% endif %}
+
+
+    <div class="clearfix"></div>
+    {% if data.image_len > 0 %}
+    <h4>样品图像</h4>
+    <div id="sample-waterfall">
+         {% for item in detail_image(data.big_image, data.image_len) %}
+            <a class="sample-box" href="{{item.big}}" title="{{data.title}}">
+                <div class="photo-frame">
+                    <img src="{{item.small}}">
+                </div>
+            </a>
+         {% endfor %}
+    </div>
+    {% endif %}
+    <div class="clearfix"></div>
+
+</div>
+{% endblock %}
+{% block pagination %}{% endblock %}
+{% block tail %}
+{% if data.res_list %}
+<script type="text/javascript" src="//cdn.jsdelivr.net/npm/hls.js/dist/hls.min.js"></script>
+<script type="text/javascript" src="//cdn.jsdelivr.net/npm/dplayer/dist/DPlayer.min.js"></script>
+{% endif %}
+<script>
+function translateTitle(avid){
+    $.get("/action/translate",{
+        "words": document.querySelector("#av_title").innerText
+    } ,function(data){
+        document.querySelector("#av_title").innerText = avid + ' ' + data;
+    });
+}
+//删除影片
+function del(){
+    $.get("/action/delete/movie/{{data.link_id}}", function(data){
+        alert(data)
+    });
+}
+//播放视频
+function dplayer(url){
+    document.getElementById('dplayer').style.display="block";
+    const dp = new DPlayer({
+        container: document.getElementById('dplayer'),
+        autoplay: true,
+        video: {
+            url: url,
+            type: 'auto',
+        },
+    });
+}
+</script>
+{% endblock %}

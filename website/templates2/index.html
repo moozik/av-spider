@@ -1,0 +1,150 @@
+{{template "layout.html" .}}
+
+<!--{{ define "title" }}index.{{.pageNum}}{{end}}-->
+<!--{{ define "body" }}index body.{{.keyword}}{{end}}-->
+
+{{ block "container" }}
+<div class="container-fluid">
+    <div class="row">
+        <div id="waterfall">
+            {{/* 女优信息
+            {{ if .data.av_actress }}
+            {{if eq .frame_data.page.now 1 }}
+            <div class="item">
+                <div class="avatar-box">
+                    <div class="photo-frame">
+                        {{ if data.av_actress.headimg }}
+                        <img src="{{ "website.cdn" | getConfig }}/{{ .data.av_actress.headimg }}" title="">
+                        {{ else }}
+                        <img src="{{ "website.cdn" | getConfig }}/mono/actjpgs/nowprinting.gif" title="">
+                        {{ end }}
+                    </div>
+                    <div class="photo-info">
+                        <span class="pb-10" title="{{ data.av_actress.name }}">{{ data.av_actress.name | rename }}</span>
+                        {{ if data.av_actress.birthday }}<p>生日: {{ data.av_actress.birthday }}</p>{{ end }}
+                        {{ if data.av_actress.age }}<p>年龄: {{ data.av_actress.age }}岁</p>{{ end }}
+                        {{ if data.av_actress.height }}<p>身高: {{ data.av_actress.height }}</p>{{ end }}
+                        {{ if data.av_actress.cup }}<p>罩杯: {{ data.av_actress.cup }}</p>{{ end }}
+                        {{ if data.av_actress.bust }}<p>胸围: {{ data.av_actress.bust }}</p>{{ end }}
+                        {{ if data.av_actress.waist }}<p>腰围: {{ data.av_actress.waist }}</p>{{ end }}
+                        {{ if data.av_actress.hips }}<p>臀围: {{ data.av_actress.hips }}</p>{{ end }}
+                        {{ if data.av_actress.hometown }}<p>出生地: {{ data.av_actress.hometown }}</p>{{ end }}
+                        {{ if data.av_actress.hobby }}<p>爱好: {{ data.av_actress.hobby }}</p>{{ end }}
+                    </div>
+                </div>
+            </div>
+            {{ end }}
+            {{ end }}
+
+
+            {{ if data.page_type != 'index' and data.page_type != 'like' and frame_data.page.now == 1 }}
+            <div class="item">
+                <div class="avatar-box">
+                    <div class="photo-info">
+                        {{ if data.page_type != 'star' }}
+                        <p><span>{{ page_type_map[data.page_type].name }}:</span></p>
+                        <p><span style="color:red" title="{{ frame_data.placeholder }}">{{ frame_data.placeholder | rename }}</span></p>
+                        {{ end }}
+                        <p>
+                            <button class="btn btn-warning"
+                                    onclick="crawlAccurate('{{ data.page_type }}', '{{ data.link_id }}')"
+                                    title="crawl movie list">更新影片
+                            </button>
+                        </p>
+                        <p><a class="btn btn-success" href="/analyse/{{ data.page_type }}/{{ data.link_id }}"
+                              title="analyse" target="_blank">分析影片</a></p>
+                        {# page_type_map中定义的才展示收藏 #}
+                        {{ if page_type_map[data.page_type].like_enable }}
+                        <p>
+                            {{ if data.is_like }}
+                            <button class="btn btn-danger" type="submit"
+                                    onclick="deleteExtend('like', '{{ page_type_map[data.page_type].key }}', '{{ data.link_id }}');location.reload()"
+                                    title="cancel favorites">取消收藏
+                            </button>
+                            {{ else }}
+                            <button class="btn btn-success" type="submit"
+                                    onclick="insertExtend('like', '{{ page_type_map[data.page_type].key }}', '{{ data.link_id }}');location.reload()"
+                                    title="add favorites">收藏
+                            </button>
+                            {{ end }}
+                        </p>
+                        {{ end }}
+                        {{ if page_type_map[data.page_type].rename_enable }}
+                        <p>
+                            <button class="btn btn-success" type="submit"
+                                    onclick="$('#modal_rename').modal('show');"
+                                    title="rename">改名
+                            </button>
+                        </p>
+                        {{ end }}
+                    </div>
+                </div>
+            </div>
+            <div class="item" id="analyseResult">
+            </div>
+            {{ end }}
+
+            */}}
+
+            {{ range $key, $item := .data.av_list }}
+            <div class="item">
+                <a class="movie-box" href="/movie/{{ $item.link_id }}">
+                    <div class="photo-frame">
+                        <img class="photo-sm" src="{{ $item.big_image | small_img }}">
+                    </div>
+                    <div class="photo-info">
+                        {{ if $item.file }}
+                        <span class="glyphicon glyphicon-download-alt" style="color:#cc0000"></span>
+                        {{ end }}
+                        {{ if $item.magnet }}
+                        <span class="glyphicon glyphicon-magnet" style="color:#cc0000"></span>
+                        {{ end }}
+                        {{ if $item.http }}
+                        <span class="glyphicon glyphicon-link" style="color:#cc0000"></span>
+                        {{ end }}
+                        <span>{{ $item.title }}
+                                    <br>
+                                    <date>{{ $item.av_id }}</date> /
+                                    <date>{{ $item.release_date }}</date>
+                                </span>
+                    </div>
+                    <div class="movie-desc">
+                        {{ $item.genre }}<br><br>
+                        {{ if $item.stars }}
+                        {{ $item.stars }}<br><br>
+                        {{ end }}
+                        len:<b style="color:red;">{{ $item.len }}min</b> image:<b
+                            style="color:red;">{{ $item.image_len }}</b>
+                    </div>
+                </a>
+            </div>
+            {{ end }}
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modal_rename" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title">
+                    修改别称(提交空则取消改名)
+                </h4>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="target_name" class="form-control" value=""/>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary"
+                        onclick="insertExtend('rename', '{{ .frame_data.placeholder }}', $('#target_name').val());location.reload();">
+                    保存
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{{ end }}

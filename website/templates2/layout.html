@@ -1,0 +1,272 @@
+<!--<!DOCTYPE html>-->
+<!--<html lang="en">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <title>{{ block "title" .}}{{end}}</title>-->
+<!--</head>-->
+<!--<body>-->
+<!--{{ block "body" .}}{{end}}-->
+<!--</body>-->
+<!--</html>-->
+
+<html lang="cn"><head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta http-equiv="x-dns-prefetch-control" content="on">
+    <meta name="renderer" content="webkit">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{if .title}}{{.title}} {{end}}avmoo-spider</title>
+    <link rel="shortcut Icon" href="/static/icon.png">
+    <link rel="bookmark" href="/static/icon.png">
+    <link rel="dns-prefetch" href="http://jp.netcdn.space">
+    <link rel="dns-prefetch" href="http://pics.dmm.com">
+    <link rel="dns-prefetch" href="http://pics.dmm.co.jp">
+    <link rel="stylesheet" type="text/css" href="/static/app.min.css">
+    <style>
+        .sub_title{
+            border: 1px solid #f98cfc;
+            background-color: #f44336;
+            color: white;
+            font-size: 8px;
+            padding: 3px;
+            border-radius: 6px;
+        }
+        .movie-desc {
+            position: absolute;
+            width: 167px;
+            height: auto;
+            min-height: 220px;
+            left: 10px;
+            top: 100px;
+            padding: 5px;
+            color: white;
+            background-color: #000;
+            opacity: 0;
+            line-height: 19px;
+            transition: all .2s;
+        }
+        .movie-box:hover .movie-desc {
+            opacity: 0.8;
+            top: 10px;
+        }
+        .info a {
+            color: #0015af;
+        }
+        .tag-style{
+            display: inline-block;
+            color: #000;
+            background-color: #d8d8d8;
+            border: 2px solid #d8d8d8;
+            padding: 2px;
+            margin: 2px;
+            border-radius: 7px;
+        }
+    </style>
+    {{ block "head" .}} {{ end }}
+</head>
+
+<body>
+<nav class="navbar navbar-default navbar-fixed-top top-bar">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="https://github.com/moozik/av-spider" target="_blank">av-spider</a>
+        </div>
+        <div class="collapse navbar-collapse">
+            <form class="navbar-form navbar-left fullsearch-form" action="/search" onsubmit="return false">
+                <div class="input-group">
+                    <input name="keyword" type="text" class="form-control" placeholder="演员ID,类型,演员" value="{{ if .frame_data.placeholder }}{{.frame_data.placeholder}}{{ end }}">
+                    <span class="input-group-btn">
+                <button class="btn btn-default" type="submit">查找</button>
+              </span>
+                </div>
+            </form>
+            <ul class="nav navbar-nav">
+                <li><a>{{ if .frame_data.page }}总数:(<b style="color:red;">{{.frame_data.page.count}}</b>){{end}}</a></li>
+                <li><a href="/">全部</a></li>
+                <li><a href="/search/已发布" title="Released">已发布</a></li>
+                <li><a href="/search/已下载" title="Already downloaded">已下载</a></li>
+                <li><a href="/search/有资源" title="Resources">有资源</a></li>
+                <li><a href="/actresses" title="Actresses">女优</a></li>
+                <li><a href="/genre" title="Genre">类别</a></li>
+                <li><a href="/group" title="group">番号</a></li>
+                <li><a href="/studio" title="studio">制作商</a></li>
+                <li><a href="/label" title="label">发行商</a></li>
+                <li><a href="/series" title="series">系列</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="glyphicon glyphicon-star" style="font-size:12px;"></span> <span class="hidden-sm">收藏</span> <span class="caret"></span></a>
+                    <ul class="dropdown-menu" role="menu">
+                        {{ range $key, $val := .page_type_map }}
+                            {{ if $val.like_enable }}
+                            <li><a href="/like/{{$key}}">{{$val.name}}</a></li>
+                            {{ end }}
+                        {{ end }}
+                    </ul>
+                </li>
+            </ul>
+
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="/spider" style="font-weight: bold;color:#f44336;" title="spider"><span class="glyphicon glyphicon-tasks" style="font-size:12px;"></span> 爬虫</a></li>
+                <li><a href="/scandisk" title="scan local files"><span class="glyphicon glyphicon-search" style="font-size:12px;"></span> 扫描</a></li>
+                <li><a href="/config" title="config"><span class="glyphicon glyphicon-wrench" style="font-size:12px;"></span> 配置</a></li>
+                {{ if .frame_data.origin_link }}
+                <li><a href="{{ .origin_link }}" target="_blank" title="origin link"><span class="glyphicon glyphicon-link" style="font-size:12px;"></span> 链接</a></li>
+                {{ else }}
+                <li><a href="{{ "base.avmoo_site" | getConfig }}" target="_blank" title="origin link"><span class="glyphicon glyphicon-link" style="font-size:12px;"></span> 链接</a></li>
+                {{ end }}
+<!--                <li class="dropdown">-->
+<!--                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="glyphicon glyphicon-globe" style="font-size:12px;"></span> <span class="hidden-sm">.country_map[config.get('base.country')] </span> <span class="caret"></span></a>-->
+<!--                    <ul class="dropdown-menu" role="menu">-->
+<!--                        <li><a onclick="changeLanguage('cn')">简体中文</a></li>-->
+<!--                        <li><a onclick="changeLanguage('en')">English</a></li>-->
+<!--                        <li><a onclick="changeLanguage('ja')">日本语</a></li>-->
+<!--                        <li><a onclick="changeLanguage('tw')">正體中文</a></li>-->
+<!--                    </ul>-->
+<!--                </li>-->
+            </ul>
+        </div>
+    </div>
+</nav>
+
+{{ block "container" .}} {{ end }}
+
+
+{{ block "pagination" . }}
+{{ if .frame_data.page }}
+<div class="text-center hidden-xs mtb-20">
+    <ul class="pagination pagination-lg mtb-0">
+        {{ if .frame_data.page.head }}
+        <li>
+            <a href="{{.frame_data.page.pageroot}}/page/1">
+                <span class="glyphicon glyphicon-fast-backward"></span> 首页</a>
+        </li>
+        {{ end }}
+        {{ if gt .frame_data.page.left 0}}
+        <li>
+            <a href="{{.frame_data.page.pageroot}}/page/{{.frame_data.page.left}}">
+                <span class="glyphicon glyphicon-chevron-left"></span> 上一页</a>
+        </li>
+        {{ end }}
+        {{ range $key, $item := .frame_data.page.list }}
+            {{ if eq $.frame_data.page.now $item }}
+            <li class="active">
+                <a href="{{.frame_data.page.pageroot}}/page/{{$item}}">{{$item}}</a>
+            </li>
+            {{ else }}
+            <li>
+                <a href="{{.frame_data.page.pageroot}}/page/{{$item}}">{{$item}}</a>
+            </li>
+            {{ end }}
+        {{ end }}
+        {{ if gt .frame_data.page.right 0}}
+        <li>
+            <a href="{{.frame_data.page.pageroot}}/page/{{.frame_data.page.right}}">
+                <span class="glyphicon glyphicon-chevron-right"></span> 下一页</a>
+        </li>
+        {{ end }}
+        {{ if .frame_data.page.tail }}
+        <li>
+            <a href="{{.frame_data.page.pageroot}}/page/{{.frame_data.page.tail}}">
+                <span class="glyphicon glyphicon-fast-forward"></span> 尾页</a>
+        </li>
+        {{ end }}
+    </ul>
+</div>
+{{ end }}
+{{ end }}
+
+<div class="modal fade" id="message" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title">
+                    删除成功
+                </h4>
+            </div>
+            <div class="modal-body">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="confirm">
+                    确认
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<footer class="footer hidden-xs">
+    <div class="container-fluid">
+    </div>
+</footer>
+
+<script src="/static/app.min.js"></script>
+<script>
+    function showMessage(title, body){
+        $("#message").find('.modal-title').html(title)
+        $("#message").find('.modal-body').html(body);
+        $('#message').modal('show');
+    }
+    $('#confirm').click(function(){
+        $('#message').modal('hide');
+    });
+    function explorerLocal(path){
+        $.get("/action/explorer",{"path":path}, function(data){
+            if(data != 'ok') {
+                showMessage(data,"");
+            }
+        });
+    }
+    function crawlLink(input_text){
+        $.post("/action/crawl", {
+            input_text: input_text
+        }, function (data) {
+            showMessage(data,"");
+        });
+    }
+    function crawlAccurate(page_type, keyword){
+        $.post("/action/crawl/accurate", {
+            page_type: page_type,
+            keyword: keyword,
+        }, function (data) {
+            showMessage(data,"");
+        });
+    }
+    function selectExtend(group, key, val){
+        $.get("/action/extend/select", {
+            "class": group,
+            "key": key,
+            "val": val,
+        },function(data){
+            showMessage("扩展信息",data);
+        });
+    }
+    function insertExtend(group, key, val){
+        $.get("/action/extend/insert", {
+            "class": group,
+            "key": key,
+            "val": val,
+        },function(data){
+            showMessage(data,"");
+        });
+    }
+    function deleteExtend(group, key, val){
+        $.get("/action/extend/delete", {
+            "class": group,
+            "key": key,
+            "val": val,
+        },function(data){
+            showMessage(data,"");
+        });
+    }
+    function changeLanguage(country){
+        $.get("/action/change/language", {
+            "country": country,
+        },function(data){
+            location.reload();
+        });
+    }
+</script>
+{{ block "tail" .}} {{ end }}
+</body>
+</html>

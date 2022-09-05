@@ -1,0 +1,46 @@
+{% extends "main.html" %}
+
+
+{% block head %}
+<style>
+    .avatar-box{
+        height:290px;
+    }
+</style>
+{% endblock %}
+
+{% block container %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-1">
+            <div class="input-group" style="margin-top:20px;">
+                <button class="btn btn-default" onclick="crawlAccurate('all_star', '')" title="update all movie">更新所有影片</button>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div id="avatar-waterfall" style="margin: 20px 60px;">
+            {% for item in data.av_actress %}
+            <div class="avatar-box">
+                <a class="" href="/star/{{item.link_id}}" title="{{item.time}}">
+                    <div class="photo-frame">
+                        {% if item.headimg %}
+                        <img src="{{config.get('website.cdn')}}/{{item.headimg}}" title="">
+                        {% else %}
+                        <img src="{{config.get('website.cdn')}}/mono/actjpgs/nowprinting.gif" title="">
+                        {% endif %}
+                    </div>
+                </a>
+                <span>{{item.name | rename}}</span>
+                {% if item.movie_count %}
+                <span>作品 <b style="color:red;">{{item.movie_count}}</b></span>
+                <span>最新 <b style="color:red;">{{item.release_date}}</b></span>
+                {% endif %}
+                <span><button class="btn btn-default btn-sm" onclick="crawlAccurate('star' ,'{{item.link_id}}')" title="update movie list">更新影片</button></span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

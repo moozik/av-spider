@@ -1,0 +1,45 @@
+{% extends "main.html" %}
+
+{% block container %}
+<div class="container-fluid">
+    <div class="row" style="margin-top: 20px;">
+        <div class="col-md-10 col-md-offset-1">
+
+            <h3 style="font-weight: 700;margin-top:20px;">{{data.page_type}}: {{data.analyse_name | rename}}</h3>
+
+            <h3 style="font-weight: 700;margin-top:20px;">总时长</h3>
+            <span class="tag-style">{{data.minute_sum}} min</span>
+
+            <h3 style="font-weight: 700;margin-top:20px;">类别</h3>
+            {% for item in data.genre_counter %}
+                <a class="tag-style" href="/search/genre[{{item.name}}]%20{{data.page_type}}[{{data.analyse_name}}]" target="_blank">{{item.name | rename}}<span style="color:red">({{item.count}})</span></a>
+            {% endfor %}
+
+            <h3 style="font-weight: 700;margin-top:20px;">演员</h3>
+            {% for item in data.actress_counter %}
+                <a class="tag-style" href="/search/star[{{item.name}}]%20{{data.page_type}}[{{data.analyse_name}}]" target="_blank">{{item.name | rename}}<span style="color:red">({{item.count}})</span></a>
+            {% endfor %}
+
+            <h3 style="font-weight: 700;margin-top:20px;">系列</h3>
+            {% for item in data.series_counter %}
+                <a class="tag-style" href="/search/series[{{item.name}}]%20{{data.page_type}}[{{data.analyse_name}}]" target="_blank">{{item.name | rename}}<span style="color:red">({{item.count}})</span></a>
+            {% endfor %}
+
+            <h3 style="font-weight: 700;margin-top:20px;">制作商</h3>
+            {% for item in data.studio_counter %}
+                <a class="tag-style" href="/search/studio[{{item.name}}]%20{{data.page_type}}[{{data.analyse_name}}]" target="_blank">{{item.name | rename}}<span style="color:red">({{item.count}})</span></a>
+            {% endfor %}
+
+            <h3 style="font-weight: 700;margin-top:20px;">发行商</h3>
+            {% for item in data.label_counter %}
+                <a class="tag-style" href="/search/label[{{item.name}}]%20{{data.page_type}}[{{data.analyse_name}}]" target="_blank">{{item.name | rename}}<span style="color:red">({{item.count}})</span></a>
+            {% endfor %}
+
+            <h3 style="font-weight: 700;margin-top:20px;">导演</h3>
+            {% for item in data.director_counter %}
+                <a class="tag-style" href="/search/director[{{item.name}}]%20{{data.page_type}}[{{data.analyse_name}}]" target="_blank">{{item.name | rename}}<span style="color:red">({{item.count}})</span></a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
