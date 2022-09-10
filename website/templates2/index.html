@@ -3,7 +3,7 @@
 <!--{{ define "title" }}index.{{.pageNum}}{{end}}-->
 <!--{{ define "body" }}index body.{{.keyword}}{{end}}-->
 
-{{ block "container" }}
+{{ block "container" . }}
 <div class="container-fluid">
     <div class="row">
         <div id="waterfall">
@@ -90,7 +90,7 @@
             <div class="item">
                 <a class="movie-box" href="/movie/{{ $item.link_id }}">
                     <div class="photo-frame">
-                        <img class="photo-sm" src="{{ $item.big_image | small_img }}">
+                        <img class="photo-sm" src="{{ $item.big_image | smallImg }}">
                     </div>
                     <div class="photo-info">
                         {{ if $item.file }}

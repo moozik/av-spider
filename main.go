@@ -2,10 +2,10 @@ package main
 
 import (
 	"av-spider/util"
+	"av-spider/website"
 	"av-spider/website/controller"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"html/template"
 	"io"
 	"os"
 	"time"
@@ -36,11 +36,7 @@ func main() {
 	//html := template.Must(template.ParseFiles("file1", "file2"))
 	//engine.SetHTMLTemplate(html)
 	//engine.Delims("{%", "%}")
-	engine.SetFuncMap(template.FuncMap{
-		"getConfig": func(s string) string {
-			return s
-		},
-	})
+	engine.SetFuncMap(website.FuncMap)
 	engine.Static("/static", "website/static")
 	//engine.LoadHTMLGlob("website/templates/*")
 	engine.LoadHTMLGlob("website/templates2/*")

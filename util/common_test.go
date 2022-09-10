@@ -4,6 +4,7 @@ import (
 	"av-spider/dao"
 	"av-spider/entity"
 	"fmt"
+	"reflect"
 	"testing"
 )
 
@@ -17,4 +18,16 @@ func TestGetDb(t *testing.T) {
 func TestSelectAvList(t *testing.T) {
 	ret := dao.SelectAvList([]string{}, 1)
 	fmt.Println(ret)
+}
+
+func getConfig(s string) string {
+	return s
+}
+
+func TestReflect(t *testing.T) {
+	a := getConfig
+	//fmt.Printf("%v", a)
+	aa := reflect.ValueOf(a)
+
+	fmt.Printf("%v", aa.String())
 }
